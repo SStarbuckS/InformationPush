@@ -17,18 +17,16 @@ function getDataArray($MsgArray)
         "touser" => "@all", 
         "toparty" => "@all", 
         "totag" => "@all", 
-        "msgtype" => "textcard", 
+        "msgtype" => "text", 
         //改成自己的应用id
         "agentid" => $MsgArray["agentid"], 
-        
-        'textcard' => array(
-            'title' => $MsgArray["title"],
-            //提示的时间和内容
-            'description' => '<div class="gray">'.$MsgArray["time"].'</div> <div class="normal">'.$MsgArray["msg"].'</div>',
-            //点击模板打开的链接
-            'url' => $MsgArray["url"],
-            "btntxt"=>"详情"
-            )
+        'text' => array(
+            'content' => $MsgArray["msg"]
+            ),
+        "safe" => 0,
+        "enable_id_trans" => 0,
+        "enable_duplicate_check" => 0,
+        "duplicate_check_interval" => 1800
     );
     return $data;
 }
