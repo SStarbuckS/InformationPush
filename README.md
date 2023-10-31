@@ -1,6 +1,8 @@
 ## weixin.php是微信消息推送
 ## dingtalk.php是钉钉消息推送
-## work.php是企业微信推送
+## work_txt.php是企业微信文本消息推送
+## work_mpnews.php是企业微信图文消息推送
+## telegram.php是Telegram消息推送
 ## msg.php是查看具体消息详情
 ## HappyPush文件夹下是小米推送的安卓端和PHP推送端
 
