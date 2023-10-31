@@ -18,13 +18,12 @@ function getDataArray($MsgArray)
         "toparty" => "@all", 
         "totag" => "@all", 
         "msgtype" => "mpnews", 
-        //改成自己的应用id
         "agentid" => $MsgArray["agentid"], 
         "mpnews" => array(
             "articles" => array(
                 //标题
                 "title" => $MsgArray["title"],
-               //缩略图
+               //缩略图ID，企业微信后台媒体库图片链接地址的ID
                 "thumb_media_id" => "",
                //作者
                 "author" => "Author",
