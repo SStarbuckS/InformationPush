@@ -18,7 +18,6 @@ function getDataArray($MsgArray)
         "toparty" => "@all", 
         "totag" => "@all", 
         "msgtype" => "text", 
-        //改成自己的应用id
         "agentid" => $MsgArray["agentid"], 
         'text' => array(
             'content' => $MsgArray["msg"]
