@@ -1,42 +1,57 @@
 <?php
-function request_by_curl($remote_server, $post_string) {
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $remote_server);
-    curl_setopt($ch, CURLOPT_POST, 1);
-    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json;charset=utf-8'));
-    curl_setopt($ch, CURLOPT_POSTFIELDS, $post_string);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    // 线下环境不用开启curl证书验证, 未调通情况可尝试添加该代码
-    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-    $data = curl_exec($ch);
-    curl_close($ch);
-    return $data;
-}
+/**
+ * =========================
+ * Telegram Bot 配置区
+ * =========================
+ */
+$token = "Token";  // Bot Token
+$chat_id = "Chat_id";                                     // 接收消息的 Chat ID
+$api_base_url = "https://api.telegram.org";                 // Telegram API，可改为反代
 
+// 如果不存在文本就禁止提交
 if (!isset($_REQUEST['msg'])) {
     exit;
 }
 
-// 替换成你的Telegram Bot Token 和 Chat ID
-$token = "YOUR_BOT_TOKEN";
-$chat_id = "YOUR_CHAT_ID";
+// curl请求函数
+function https_request($url, $data) {
+    $curl = curl_init();
+    curl_setopt($curl, CURLOPT_URL, $url);
+    curl_setopt($curl, CURLOPT_POST, true);
+    curl_setopt($curl, CURLOPT_HTTPHEADER, array('Content-Type: application/json;charset=utf-8'));
+    curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+    $output = curl_exec($curl);
+    curl_close($curl);
+    return $output;
+}
 
-// 构造Telegram API发送消息的URL
-$telegram_api_url = "https://api.telegram.org/bot$token/sendMessage";
+/**
+ * =========================
+ * 开始推送
+ * =========================
+ */
 
-// 接收的消息内容
+// 构造 Telegram API URL
+$telegram_api_url = $api_base_url . "/bot{$token}/sendMessage";
+
+// 获取消息内容
 $message = $_REQUEST['msg'];
 
-// 构造POST数据
-$data = array(
+// 构造请求数据
+$data = [
     'chat_id' => $chat_id,
     'text' => $message
-);
+];
 
-$data_string = json_encode($data);
+// 发送请求
+$json_data = json_encode($data, JSON_UNESCAPED_UNICODE);
+$result = https_request($telegram_api_url, $json_data);
 
-$result = request_by_curl($telegram_api_url, $data_string);
-echo $result;
-?>
+// 解析响应
+$response = json_decode($result, true);
+if ($response && $response['ok'] == true) { 
+    echo "Success";
+} else {
+    echo "Error: " . $result; // 原始响应，方便调试
+}
