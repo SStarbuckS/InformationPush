@@ -4,6 +4,7 @@
  * Telegram Bot 配置区
  * =========================
  */
+
 $token = "Token";  // Bot Token
 $chat_id = "Chat_id";                                     // 接收消息的 Chat ID
 $api_base_url = "https://api.telegram.org";                 // Telegram API，可改为反代
@@ -33,7 +34,7 @@ function https_request($url, $data) {
  */
 
 // 构造 Telegram API URL
-$telegram_api_url = $api_base_url . "/bot{$token}/sendMessage";
+$webhook = $api_base_url . "/bot{$token}/sendMessage";
 
 // 获取消息内容
 $message = $_REQUEST['msg'];
@@ -46,7 +47,7 @@ $data = [
 
 // 发送请求
 $json_data = json_encode($data, JSON_UNESCAPED_UNICODE);
-$result = https_request($telegram_api_url, $json_data);
+$result = https_request($webhook, $json_data);
 
 // 解析响应
 $response = json_decode($result, true);
