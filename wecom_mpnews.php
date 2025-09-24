@@ -61,12 +61,15 @@ function https_request($url, $data = null)
  * 开始推送
  * =========================
  */
+
+// 获取access_token
 $ACCESS_TOKEN = json_decode(
     https_request("{$api_base_url}/cgi-bin/gettoken?corpid={$corpid}&corpsecret={$corpsecret}"),
     true
 )["access_token"];
 
-$url = "{$api_base_url}/cgi-bin/message/send?access_token=" . $ACCESS_TOKEN;
+// 构造完整 Webhook URL（拼接路径）
+$webhook = "{$api_base_url}/cgi-bin/message/send?access_token=" . $ACCESS_TOKEN;
 $MsgArray = array();
 
 // 获取消息标题
@@ -75,11 +78,11 @@ $MsgArray["title"] = isset($_REQUEST['title']) ? $_REQUEST['title'] : $title_def
 // 获取消息内容
 $MsgArray["msg"] = $_REQUEST['msg'];
 
-// 解析响应
+// 发送请求
 $json_data = json_encode(getDataArray($MsgArray), JSON_UNESCAPED_UNICODE);
-$result = https_request($url, $json_data);
+$result = https_request($webhook, $json_data);
 
-// 解析企业微信API响应并进行判断
+// 解析响应
 $response = json_decode($result, true);
 if ($response && $response['errcode'] == 0) {
     echo "Success";
