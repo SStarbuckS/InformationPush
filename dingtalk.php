@@ -39,12 +39,12 @@ $webhook = $api_base_url . "?access_token=" . $access_token;
 $message = $_REQUEST['msg'];
 
 // 构造请求数据
-$data = array(
+$data = [
     'msgtype' => 'text',
-    'text' => array(
+    'text' => [
         'content' => $message
-    )
-);
+    ]
+];
 
 // 发送请求
 $json_data = json_encode($data, JSON_UNESCAPED_UNICODE);
