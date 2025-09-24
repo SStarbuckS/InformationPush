@@ -4,6 +4,7 @@
  * 钉钉机器人配置区
  * =========================
  */
+
 $access_token = "Access_token"; // access_token
 $api_base_url = "https://oapi.dingtalk.com/robot/send";                            // 钉钉 API，可改为反代
 
