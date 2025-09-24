@@ -1,32 +1,58 @@
-<?php  
-function request_by_curl($remote_server, $post_string) {  
-    $ch = curl_init();  
-    curl_setopt($ch, CURLOPT_URL, $remote_server);
-    curl_setopt($ch, CURLOPT_POST, 1); 
-    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5); 
-    curl_setopt($ch, CURLOPT_HTTPHEADER, array ('Content-Type: application/json;charset=utf-8'));
-    curl_setopt($ch, CURLOPT_POSTFIELDS, $post_string);  
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);  
-    // 线下环境不用开启curl证书验证, 未调通情况可尝试添加该代码
-    curl_setopt ($ch, CURLOPT_SSL_VERIFYHOST, 0); 
-    curl_setopt ($ch, CURLOPT_SSL_VERIFYPEER, 0);
-    $data = curl_exec($ch);
-    curl_close($ch);                
-    return $data;  
-}  
+<?php
+/**
+ * =========================
+ * 钉钉机器人配置区
+ * =========================
+ */
+$access_token = "Access_token"; // access_token
+$api_base_url = "https://oapi.dingtalk.com/robot/send";                            // 钉钉 API，可改为反代
 
-if(!isset($_REQUEST['msg']))
-{
-  exit;
+// 如果不存在文本就禁止提交
+if (!isset($_REQUEST['msg'])) {
+    exit;
 }
 
-//提交的地址
-$webhook = "https://oapi.dingtalk.com/robot/send?access_token=机器人值";
-//推送的文本内容
-$message=$_REQUEST['msg'];
-$data = array ('msgtype' => 'text','text' => array ('content' => $message));
-$data_string = json_encode($data);
+// curl请求函数
+function https_request($url, $data) {
+    $curl = curl_init();
+    curl_setopt($curl, CURLOPT_URL, $url);
+    curl_setopt($curl, CURLOPT_POST, true);
+    curl_setopt($curl, CURLOPT_HTTPHEADER, array('Content-Type: application/json;charset=utf-8'));
+    curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+    $output = curl_exec($curl);
+    curl_close($curl);
+    return $output;
+}
 
-$result = request_by_curl($webhook, $data_string);  
-echo $result;
-?>
+/**
+ * =========================
+ * 开始推送
+ * =========================
+ */
+ 
+// 构造完整 Webhook URL（拼接路径）
+$webhook = $api_base_url . "?access_token=" . $access_token;
+
+// 获取消息内容
+$message = $_REQUEST['msg'];
+
+// 构造请求数据
+$data = array(
+    'msgtype' => 'text',
+    'text' => array(
+        'content' => $message
+    )
+);
+
+// 发送请求
+$json_data = json_encode($data, JSON_UNESCAPED_UNICODE);
+$result = https_request($webhook, $json_data);
+
+// 解析响应
+$response = json_decode($result, true);
+if ($response && $response['errcode'] == 0) {
+    echo "Success";
+} else {
+    echo "Error: " . $result; // 原始响应，方便调试
+}
