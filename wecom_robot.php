@@ -4,6 +4,7 @@
  * 企业微信群机器人配置区
  * =========================
  */
+
 $wecom_keys = [
     "693axxx6-7aoc-4bc4-97a0-0ec2sifa5aaa",
     "abc123xx-1bcd-2efg-34hi-56789jklmnop",
@@ -40,7 +41,7 @@ function https_request($url, $data) {
 $selected_key = $wecom_keys[array_rand($wecom_keys)];
 
 // 构造完整 Webhook URL（拼接路径）
-$wecom_api_url = $api_base_url . "/cgi-bin/webhook/send?key=" . $selected_key;
+$webhook = $api_base_url . "/cgi-bin/webhook/send?key=" . $selected_key;
 
 // 获取消息内容
 $message = $_REQUEST['msg'];
@@ -55,7 +56,7 @@ $data = [
 
 // 发送请求
 $json_data = json_encode($data, JSON_UNESCAPED_UNICODE);
-$result = https_request($wecom_api_url, $json_data);
+$result = https_request($webhook, $json_data);
 
 // 解析响应
 $response = json_decode($result, true);
