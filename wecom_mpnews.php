@@ -47,10 +47,10 @@ function https_request($url, $data = null)
     curl_setopt($curl, CURLOPT_URL, $url);
     curl_setopt($curl, CURLOPT_HTTPHEADER, array('Content-Type: application/json;charset=utf-8'));
     if (!empty($data)) {
-        curl_setopt($curl, CURLOPT_POST, 1);
+        curl_setopt($curl, CURLOPT_POST, true);
         curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
     }
-    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
     $output = curl_exec($curl);
     curl_close($curl);
     return $output;
@@ -77,12 +77,12 @@ $MsgArray["msg"] = $_REQUEST['msg'];
 
 // 转化成json数组让微信可以接收
 $json_data = json_encode(getDataArray($MsgArray), JSON_UNESCAPED_UNICODE);
-$res = https_request($url, $json_data);
+$result = https_request($url, $json_data);
 
 // 解析企业微信API响应并进行判断
-$response = json_decode($res, true);
+$response = json_decode($result, true);
 if ($response && $response['errcode'] == 0) {
     echo "Success";
 } else {
-    echo "Error: " . $res; // 原始响应，方便调试
+    echo "Error: " . $result; // 原始响应，方便调试
 }
