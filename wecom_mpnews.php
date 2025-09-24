@@ -1,7 +1,4 @@
 <?php
-header("Content-Type: application/json; charset=utf-8");
-date_default_timezone_set('PRC');
-
 /**
  * =========================
  * 企业微信图文消息（mpnews）配置区
@@ -48,8 +45,6 @@ function https_request($url, $data = null)
 {
     $curl = curl_init();
     curl_setopt($curl, CURLOPT_URL, $url);
-    curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, FALSE);
-    curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, FALSE);
     curl_setopt($curl, CURLOPT_HTTPHEADER, array('Content-Type: application/json;charset=utf-8'));
     if (!empty($data)) {
         curl_setopt($curl, CURLOPT_POST, 1);
@@ -87,14 +82,7 @@ $res = https_request($url, $json_data);
 // 解析企业微信API响应并进行判断
 $response = json_decode($res, true);
 if ($response && $response['errcode'] == 0) {
-    echo json_encode([
-        "success" => true,
-        "message" => "推送成功！"
-    ], JSON_UNESCAPED_UNICODE);
+    echo "Success";
 } else {
-    echo json_encode([
-        "success" => false,
-        "message" => "推送失败",
-        "detail" => $res
-    ], JSON_UNESCAPED_UNICODE);
+    echo "Error: " . $res; // 原始响应，方便调试
 }
