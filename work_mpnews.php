@@ -1,50 +1,49 @@
 <?php
+header("content-type:text/html;charset=utf-8");
 date_default_timezone_set('PRC');
-ini_set('session.gc_maxlifetime', "18000"); // 5小时  
-ini_set("session.cookie_lifetime","18000"); // 5小时  
 
-//如果不存在文本就禁止提交
-if(!isset($_REQUEST['msg']))
-{
-  exit;
+/**
+ * =========================
+ * 企业微信图文消息（mpnews）配置区
+ * =========================
+ */
+$api_base_url = "https://qyapi.weixin.qq.com";  // 企业微信API，可改为反代
+$corpid = "Corpid";                 // 企业ID
+$corpsecret = "Corpsecret"; // 应用密钥
+$agentid = "Agentid";                            // 应用ID
+$thumb_media_id = "Thumb_media_id"; // 缩略图ID
+$author = "Author";                          // 作者
+$title_default = "新提醒";                       // 默认标题
+
+// 如果不存在文本就禁止提交
+if (!isset($_REQUEST['msg'])) {
+    exit;
 }
 
-//获取发送数据数组
+// 获取发送数据数组
 function getDataArray($MsgArray)
 {
+    global $agentid, $thumb_media_id, $author;
     $data = array(
-        //要发送给的用户，@all为全部
-        "touser" => "@all", 
-        "toparty" => "@all", 
-        "totag" => "@all", 
-        "msgtype" => "mpnews", 
-        "agentid" => $MsgArray["agentid"], 
+        "touser" => "@all",
+        "msgtype" => "mpnews",
+        "agentid" => $agentid,
         "mpnews" => array(
-            "articles" => array(
-                //标题
-                "title" => $MsgArray["title"],
-               //缩略图ID，企业微信后台媒体库图片链接地址的ID
-                "thumb_media_id" => "",
-               //作者
-                "author" => "Author",
-               //链接
-                "content_source_url" => $MsgArray["url"],
-               //内容
-                "content" => str_replace("\n", "<br/>", $MsgArray["msg"]),
-               //描述
-                "digest" => $MsgArray["msg"],
+            'articles' => array(
+                array(
+                    'title' => $MsgArray["title"],
+                    "thumb_media_id" => $thumb_media_id,
+                    "author" => $author,
+                    'content' => str_replace(array("\n", "\r\n", "\r"), "<br>", $MsgArray["msg"]),
+                    'digest' => $MsgArray["msg"]
+                )
             )
-        ),
-        "safe" => 0,
-        "enable_id_trans" => 0,
-        "enable_duplicate_check" => 0,
-        "duplicate_check_interval" => 1800
+        )
     );
     return $data;
 }
 
-
-//curl请求函数，微信都是通过该函数请求
+// curl请求函数，微信都是通过该函数请求
 function https_request($url, $data = null)
 {
     $curl = curl_init();
@@ -54,6 +53,10 @@ function https_request($url, $data = null)
     if (!empty($data)) {
         curl_setopt($curl, CURLOPT_POST, 1);
         curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+        curl_setopt($curl, CURLOPT_HTTPHEADER, array(
+            'Content-Type: application/json',
+            'Content-Length: ' . strlen($data)
+        ));
     }
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
     $output = curl_exec($curl);
@@ -62,57 +65,33 @@ function https_request($url, $data = null)
 }
 
 /**
+ * =========================
  * 开始推送
+ * =========================
  */
+$ACCESS_TOKEN = json_decode(
+    https_request("{$api_base_url}/cgi-bin/gettoken?corpid={$corpid}&corpsecret={$corpsecret}"),
+    true
+)["access_token"];
 
- if(!session_id()){
-       session_start();
-      }
+$url = "{$api_base_url}/cgi-bin/message/send?access_token=" . $ACCESS_TOKEN;
+$MsgArray = array();
 
-$ACCESS_TOKEN ='';
+// 标题
+$MsgArray["title"] = isset($_REQUEST['title']) ? $_REQUEST['title'] : $title_default;
 
-if (isset($_SESSION['WorkACCESS_TOKEN'])) 
-{
-    //存在
-    $ACCESS_TOKEN =$_SESSION['WorkACCESS_TOKEN'];
-    echo '从缓存中获取的ACCESS_TOKEN';
-}
-else
-{
-    //替换你的ACCESS_TOKEN
-    $ACCESS_TOKEN = json_decode(https_request("https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=企业ID&corpsecret=应用的Secret"),true)["access_token"];
-    $_SESSION['WorkACCESS_TOKEN']=$ACCESS_TOKEN;
-    echo '重获取的ACCESS_TOKEN';
-}
+// 推送的文本内容
+$MsgArray["msg"] = $_REQUEST['msg'];
 
-//模板消息请求URL
-$url = "https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=".$ACCESS_TOKEN;
-$MsgArray=array();
-
-//推送的应用id
-$MsgArray["agentid"]="";
-
-//标题是可选值
-if(!isset($_REQUEST['title'])){
-   $MsgArray["title"]="新提醒";
-}
-else{
-   $MsgArray["title"]=$_REQUEST['title'];
-}
-//推送的文本内容
-$MsgArray["msg"]=$_REQUEST['msg'];
-
-//推送时间
-$MsgArray["time"]=date('Y-m-d h:i:s',time());
-$MsgArray["url"]="http://script.haokaikai.cn/Remind/msg.php?title=".$MsgArray["title"]."&time=".$MsgArray["time"]."&msg=".$MsgArray["msg"];
-//转化成json数组让微信可以接收
+// 转化成json数组让微信可以接收
 $json_data = json_encode(getDataArray($MsgArray));
-//echo $json_data;exit;
-$res = https_request($url, urldecode($json_data));//请求开始
-$res = json_decode($res, true);
-if ($res['errcode'] == 0 && $res['errcode'] == "ok") {
-    echo "发送成功！<br/>";
-}
-else{
-     echo "发送失败<br/>";
+$res = https_request($url, $json_data);
+
+// 解析企业微信API响应并进行判断
+$response = json_decode($res, true);
+if ($response && $response['errcode'] == 0) {
+    echo "推送成功！";
+} else {
+    echo "推送失败\n";
+    echo $res;
 }
