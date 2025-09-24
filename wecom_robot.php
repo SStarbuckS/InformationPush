@@ -10,7 +10,7 @@ $wecom_keys = [
     "xyz789xx-9rst-8uvw-76xy-54321abcdefg"
 ]; // Webhook Key 列表，可添加更多
 
-$api_base_url = "https://qyapi.weixin.qq.com"; // 企业微信API，可改为反代
+$api_base_url = "https://qyapi.weixin.qq.com"; // 企业微信 API，可改为反代
 
 // 如果不存在文本就禁止提交
 if (!isset($_REQUEST['msg'])) {
@@ -53,14 +53,14 @@ $data = [
     ]
 ];
 
-// 转化成json数组让微信可以接收
+// 发送请求
 $json_data = json_encode($data, JSON_UNESCAPED_UNICODE);
 $result = https_request($wecom_api_url, $json_data);
 
-// 解析企业微信 API 响应并进行判断
+// 解析响应
 $response = json_decode($result, true);
 if ($response && $response['errcode'] == 0) {
     echo "Success";
 } else {
-    echo "Error: " . $result;
+    echo "Error: " . $result; // 原始响应，方便调试
 }
