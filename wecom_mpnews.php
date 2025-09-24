@@ -1,5 +1,5 @@
 <?php
-header("content-type:text/html;charset=utf-8");
+header("Content-Type: application/json; charset=utf-8");
 date_default_timezone_set('PRC');
 
 /**
@@ -53,10 +53,6 @@ function https_request($url, $data = null)
     if (!empty($data)) {
         curl_setopt($curl, CURLOPT_POST, 1);
         curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
-        curl_setopt($curl, CURLOPT_HTTPHEADER, array(
-            'Content-Type: application/json',
-            'Content-Length: ' . strlen($data)
-        ));
     }
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
     $output = curl_exec($curl);
@@ -84,14 +80,20 @@ $MsgArray["title"] = isset($_REQUEST['title']) ? $_REQUEST['title'] : $title_def
 $MsgArray["msg"] = $_REQUEST['msg'];
 
 // 转化成json数组让微信可以接收
-$json_data = json_encode(getDataArray($MsgArray));
+$json_data = json_encode(getDataArray($MsgArray), JSON_UNESCAPED_UNICODE);
 $res = https_request($url, $json_data);
 
 // 解析企业微信API响应并进行判断
 $response = json_decode($res, true);
 if ($response && $response['errcode'] == 0) {
-    echo "推送成功！";
+    echo json_encode([
+        "success" => true,
+        "message" => "推送成功！"
+    ], JSON_UNESCAPED_UNICODE);
 } else {
-    echo "推送失败\n";
-    echo $res;
+    echo json_encode([
+        "success" => false,
+        "message" => "推送失败",
+        "detail" => $res
+    ], JSON_UNESCAPED_UNICODE);
 }
