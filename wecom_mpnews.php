@@ -71,7 +71,6 @@ $ACCESS_TOKEN = json_decode(
 
 // 构造完整 Webhook URL（拼接路径）
 $webhook = "{$api_base_url}/cgi-bin/message/send?access_token=" . $ACCESS_TOKEN;
-$MsgArray = array();
 
 // 获取消息标题
 $MsgArray["title"] = isset($_REQUEST['title']) ? $_REQUEST['title'] : $title_default;
