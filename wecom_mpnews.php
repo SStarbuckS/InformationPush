@@ -18,30 +18,7 @@ if (!isset($_REQUEST['msg'])) {
     exit;
 }
 
-// 获取发送数据数组
-function getDataArray($MsgArray)
-{
-    global $agentid, $thumb_media_id, $author;
-    $data = array(
-        "touser" => "@all",
-        "msgtype" => "mpnews",
-        "agentid" => $agentid,
-        "mpnews" => array(
-            'articles' => array(
-                array(
-                    'title' => $MsgArray["title"],
-                    "thumb_media_id" => $thumb_media_id,
-                    "author" => $author,
-                    'content' => str_replace(array("\n", "\r\n", "\r"), "<br>", $MsgArray["msg"]),
-                    'digest' => $MsgArray["msg"]
-                )
-            )
-        )
-    );
-    return $data;
-}
-
-// curl请求函数，微信都是通过该函数请求
+// curl请求函数
 function https_request($url, $data = null)
 {
     $curl = curl_init();
@@ -55,6 +32,29 @@ function https_request($url, $data = null)
     $output = curl_exec($curl);
     curl_close($curl);
     return $output;
+}
+
+// 构造请求数据
+function getDataArray($MsgArray)
+{
+    global $agentid, $thumb_media_id, $author;
+    $data = [
+        "touser" => "@all",
+        "msgtype" => "mpnews",
+        "agentid" => $agentid,
+        "mpnews" => [
+            'articles' => [
+                [
+                    'title' => $MsgArray["title"],
+                    "thumb_media_id" => $thumb_media_id,
+                    "author" => $author,
+                    'content' => str_replace(["\n", "\r\n", "\r"], "<br>", $MsgArray["msg"]),
+                    'digest' => $MsgArray["msg"]
+                ]
+            ]
+        ]
+    ];
+    return $data;
 }
 
 /**
