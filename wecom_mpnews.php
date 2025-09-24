@@ -4,7 +4,7 @@
  * 企业微信图文消息（mpnews）配置区
  * =========================
  */
-$api_base_url = "https://qyapi.weixin.qq.com";  // 企业微信API，可改为反代
+$api_base_url = "https://qyapi.weixin.qq.com";  // 企业微信 API，可改为反代
 $corpid = "Corpid";                 // 企业ID
 $corpsecret = "Corpsecret"; // 应用密钥
 $agentid = "Agentid";                            // 应用ID
@@ -69,13 +69,13 @@ $ACCESS_TOKEN = json_decode(
 $url = "{$api_base_url}/cgi-bin/message/send?access_token=" . $ACCESS_TOKEN;
 $MsgArray = array();
 
-// 标题
+// 获取消息标题
 $MsgArray["title"] = isset($_REQUEST['title']) ? $_REQUEST['title'] : $title_default;
 
-// 推送的文本内容
+// 获取消息内容
 $MsgArray["msg"] = $_REQUEST['msg'];
 
-// 转化成json数组让微信可以接收
+// 解析响应
 $json_data = json_encode(getDataArray($MsgArray), JSON_UNESCAPED_UNICODE);
 $result = https_request($url, $json_data);
 
