@@ -4,6 +4,7 @@
  * 企业微信图文消息（mpnews）配置区
  * =========================
  */
+
 $api_base_url = "https://qyapi.weixin.qq.com";  // 企业微信 API，可改为反代
 $corpid = "Corpid";                 // 企业ID
 $corpsecret = "Corpsecret"; // 应用密钥
