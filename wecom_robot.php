@@ -10,7 +10,7 @@ $wecom_keys = [
     "xyz789xx-9rst-8uvw-76xy-54321abcdefg"
 ]; // Webhook Key 列表，可添加更多
 
-$api_base_url = "https://qyapi.weixin.qq.com"; // 企业微信 API 域名
+$api_base_url = "https://qyapi.weixin.qq.com"; // 企业微信API，可改为反代
 
 // 如果不存在文本就禁止提交
 if (!isset($_REQUEST['msg'])) {
